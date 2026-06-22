@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSU Student Portal — Sign In</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .left-panel {
+            flex: 1;
+            background: linear-gradient(160deg, #0d2b7a 0%, #1e3a8a 50%, #1a4db5 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            width: 400px; height: 400px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 50%;
+            top: -100px; left: -100px;
+        }
+
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            width: 300px; height: 300px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 50%;
+            bottom: -80px; right: -60px;
+        }
+
+        .logo-wrap {
+            text-align: center;
+            z-index: 1;
+        }
+
+        .nsu-emblem {
+            width: 110px; height: 110px;
+            object-fit: contain;
+            margin: 0 auto 16px;
+            display: block;
+            filter: drop-shadow(0 4px 16px rgba(0,0,0,0.35));
+        }
+
+        .left-panel h1 {
+            color: white;
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            line-height: 1.3;
+        }
+
+        .left-panel .tagline {
+            color: rgba(255,255,255,0.65);
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .left-panel .divider {
+            width: 40px; height: 3px;
+            background: #f59e0b;
+            border-radius: 2px;
+            margin: 24px auto;
+        }
+
+        .left-panel .feature-list {
+            list-style: none;
+            text-align: left;
+        }
+
+        .feature-list li {
+            color: rgba(255,255,255,0.75);
+            font-size: 13px;
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            width: 20px; height: 20px;
+            background: rgba(245,158,11,0.25);
+            color: #f59e0b;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .right-panel {
+            width: 440px;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 48px;
+        }
+
+        .login-box {
+            width: 100%;
+        }
+
+        .login-box h2 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .login-box .sub {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1e293b;
+            background: white;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: #1e3a8a;
+            box-shadow: 0 0 0 3px rgba(30,58,138,0.08);
+        }
+
+        .forgot {
+            text-align: right;
+            margin-top: -8px;
+            margin-bottom: 24px;
+        }
+
+        .forgot a {
+            font-size: 12px;
+            color: #1e3a8a;
+            text-decoration: none;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: #1e3a8a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-login:hover { background: #162d6e; }
+
+        .demo-hint {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #1e40af;
+        }
+
+        .demo-hint strong { display: block; margin-bottom: 4px; }
+
+        .login-footer {
+            margin-top: 32px;
+            text-align: center;
+            font-size: 11px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .left-panel { padding: 40px 24px; min-height: auto; }
+            .right-panel { width: 100%; padding: 40px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="left-panel">
+        <div class="logo-wrap">
+            <img class="nsu-emblem" src="14.North-South-University-NSU.psd.png" alt="NSU Seal">
+            <h1>North South<br>University</h1>
+            <p class="tagline">Bashundhara, Dhaka, Bangladesh</p>
+            <div class="divider"></div>
+            <ul class="feature-list">
+                <li>View grades and academic transcript</li>
+                <li>Check enrollment and course schedule</li>
+                <li>Monitor CGPA and degree progress</li>
+                <li>Manage student profile information</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="login-box">
+            <h2>Student Sign In</h2>
+            <p class="sub">Access the NSU Student Information System</p>
+
+            <form onsubmit="doLogin(event)">
+                <div class="form-group">
+                    <label>Student ID</label>
+                    <input type="text" id="sid" value="2414101630" placeholder="Enter your Student ID">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="pw" value="demo1234" placeholder="Enter your password">
+                </div>
+                <div class="forgot"><a href="#">Forgot password?</a></div>
+                <button class="btn-login" type="submit">Sign In to Portal</button>
+            </form>
+
+            <div class="demo-hint">
+                <strong>Demo Credentials</strong>
+                Student ID: 2414101630 &nbsp;|&nbsp; Password: demo1234
+            </div>
+        </div>
+
+        <div class="login-footer">
+            © 2026 North South University · IT Division<br>
+            For technical support, contact <strong>itsupport@northsouth.edu</strong>
+        </div>
+    </div>
+
+    <script>
+        function doLogin(e) {
+            e.preventDefault();
+            const btn = document.querySelector('.btn-login');
+            btn.textContent = 'Signing in…';
+            btn.disabled = true;
+            setTimeout(() => { window.location.href = 'portal.html'; }, 600);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSU Student Portal — Tanjim Shahriar Fahim</title>
+    <style>
+        :root {
+            --navy:   #0d1e45;
+            --blue:   #1a3472;
+            --link:   #1a4ea8;
+            --bg:     #f0f0f0;
+            --white:  #ffffff;
+            --border: #b8b8b8;
+            --light:  #e6e6e6;
+            --text:   #111111;
+            --muted:  #5a5a5a;
+            --sidebar: 210px;
+            --topbar:  50px;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+            font-size: 13px;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.4;
+        }
+
+        /* ── TOP BAR ──────────────────────────────────── */
+        .topbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+            height: var(--topbar);
+            background: var(--navy);
+            border-bottom: 3px solid #c8a800;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px;
+        }
+        .tb-left { display: flex; align-items: center; gap: 10px; }
+        .tb-logo {
+            height: 40px; width: 40px;
+            object-fit: contain;
+            background: var(--white);
+            padding: 2px;
+            flex-shrink: 0;
+        }
+        .tb-title { color: var(--white); font-size: 13px; font-weight: 600; }
+        .tb-sub { color: rgba(255,255,255,0.55); font-size: 10px; margin-top: 1px; }
+        .tb-right { display: flex; align-items: center; gap: 14px; color: var(--white); font-size: 12px; }
+        .tb-semester {
+            color: rgba(255,255,255,0.75); font-size: 11px;
+            border: 1px solid rgba(255,255,255,0.25); padding: 2px 8px;
+        }
+        .tb-user { color: rgba(255,255,255,0.85); }
+        .tb-logout {
+            color: rgba(255,255,255,0.6); font-size: 11px; text-decoration: underline;
+            cursor: pointer;
+        }
+        .tb-logout:hover { color: var(--white); }
+
+        /* ── SIDEBAR ───────────────────────────────────── */
+        .sidebar {
+            position: fixed; top: var(--topbar); left: 0; bottom: 0;
+            width: var(--sidebar);
+            background: var(--white);
+            border-right: 1px solid var(--border);
+            overflow-y: auto; z-index: 100;
+        }
+        .sb-seal {
+            text-align: center; padding: 12px 12px 8px;
+            background: #f5f5f5; border-bottom: 1px solid var(--border);
+        }
+        .sb-seal img { width: 64px; height: 64px; object-fit: contain; }
+        .sb-id-block {
+            padding: 10px 12px 10px;
+            background: #f5f5f5;
+            border-bottom: 1px solid var(--border);
+        }
+        .sb-name { font-size: 12.5px; font-weight: 700; color: var(--text); }
+        .sb-id   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+        .sb-prog { font-size: 11px; color: var(--muted); }
+        .sb-standing {
+            display: inline-block; margin-top: 6px;
+            font-size: 10px; color: #14532d; background: #f0fdf4;
+            border: 1px solid #86efac; padding: 1px 6px; font-weight: 600;
+        }
+        .sb-nav { padding: 4px 0 12px; }
+        .sb-group-label {
+            font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.8px; color: #888; padding: 10px 12px 3px;
+        }
+        .nav-item {
+            display: block; padding: 7px 12px; font-size: 12.5px;
+            color: var(--text); cursor: pointer; border-left: 3px solid transparent;
+        }
+        .nav-item:hover { background: #f0f4fb; color: var(--link); }
+        .nav-item.active {
+            background: #eef3fc; color: var(--link);
+            border-left-color: var(--link); font-weight: 600;
+        }
+        hr.sb-hr { border: none; border-top: 1px solid var(--light); margin: 2px 0; }
+
+        /* ── MAIN ──────────────────────────────────────── */
+        .main {
+            margin-left: var(--sidebar); margin-top: var(--topbar);
+            padding: 18px 22px 40px;
+            min-height: calc(100vh - var(--topbar));
+        }
+        .section { display: none; }
+        .section.active { display: block; }
+
+        /* ── PAGE HEADING ──────────────────────────────── */
+        .pg-head {
+            border-bottom: 2px solid var(--navy);
+            padding-bottom: 7px; margin-bottom: 16px;
+            display: flex; align-items: flex-end; justify-content: space-between;
+        }
+        .pg-title { font-size: 15px; font-weight: 700; color: var(--navy); }
+        .pg-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+        /* ── STUDENT INFO STRIP ────────────────────────── */
+        .stu-strip {
+            background: var(--white); border: 1px solid var(--border);
+            display: grid; grid-template-columns: repeat(5, 1fr);
+            margin-bottom: 14px;
+        }
+        .stu-cell {
+            padding: 9px 12px; border-right: 1px solid var(--light);
+        }
+        .stu-cell:last-child { border-right: none; }
+        .stu-lbl { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 2px; }
+        .stu-val { font-size: 13px; font-weight: 600; color: var(--text); }
+        .stu-val.big { font-size: 20px; font-weight: 700; color: var(--navy); line-height: 1; }
+
+        /* ── STAT BOX ROW ──────────────────────────────── */
+        .stat-row {
+            display: grid; grid-template-columns: repeat(4,1fr);
+            gap: 0; background: var(--border); border: 1px solid var(--border);
+            margin-bottom: 14px;
+        }
+        .sbox { background: var(--white); padding: 12px 14px; }
+        .sbox-lbl { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 4px; }
+        .sbox-val { font-size: 22px; font-weight: 700; color: var(--navy); line-height: 1; }
+        .sbox-sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
+        .prog-wrap { margin-top: 5px; }
+        .prog-track { height: 5px; background: var(--light); border: 1px solid var(--border); }
+        .prog-fill  { height: 100%; background: var(--navy); }
+
+        /* ── PANEL ─────────────────────────────────────── */
+        .panel { background: var(--white); border: 1px solid var(--border); margin-bottom: 14px; }
+        .panel-head {
+            background: #e8edf5; border-bottom: 1px solid var(--border);
+            padding: 7px 12px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .panel-title { font-size: 12px; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.3px; }
+        .panel-note  { font-size: 11px; color: var(--muted); }
+
+        /* ── KV TABLE ──────────────────────────────────── */
+        .kvt { width: 100%; border-collapse: collapse; }
+        .kvt tr { border-bottom: 1px solid var(--light); }
+        .kvt tr:last-child { border-bottom: none; }
+        .kvt th {
+            width: 38%; padding: 7px 12px; background: #f5f5f5;
+            text-align: left; font-size: 10.5px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.4px; color: var(--muted);
+        }
+        .kvt td { padding: 7px 12px; font-size: 13px; }
+
+        /* ── DATA TABLE ────────────────────────────────── */
+        .dt { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        .dt thead tr { background: #e8edf5; }
+        .dt thead th {
+            padding: 7px 11px; text-align: left;
+            font-size: 10px; font-weight: 700; color: var(--navy);
+            text-transform: uppercase; letter-spacing: 0.4px;
+            border-bottom: 1px solid var(--border);
+        }
+        .dt tbody tr { border-bottom: 1px solid var(--light); }
+        .dt tbody tr:nth-child(even) { background: #fafafa; }
+        .dt tbody tr:last-child { border-bottom: none; }
+        .dt tbody tr:hover { background: #f0f4fb; }
+        .dt td { padding: 7px 11px; vertical-align: middle; }
+        .dt th.r, .dt td.r { text-align: right; }
+        .dt th.c, .dt td.c { text-align: center; }
+        .ccode {
+            font-family: 'Courier New', monospace; font-weight: 700;
+            font-size: 12px; color: var(--link);
+        }
+
+        /* ── GRADE DISPLAY ─────────────────────────────── */
+        .g { font-weight: 700; font-size: 12.5px; }
+        .g-hi  { color: #14532d; }
+        .g-mid { color: #1e3a8a; }
+        .g-lo  { color: #7c2d12; }
+        .g-ip  { color: var(--muted); font-style: italic; font-weight: normal; font-size: 11px; }
+
+        /* ── SEMESTER BLOCK ────────────────────────────── */
+        .sem-block { margin-bottom: 18px; border: 1px solid var(--border); }
+        .sem-hdr {
+            background: var(--navy); color: var(--white);
+            padding: 6px 12px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .sem-hdr.ongoing { background: #1a472a; }
+        .sem-hdr-name { font-size: 13px; font-weight: 700; }
+        .sem-hdr-meta { display: flex; gap: 22px; }
+        .shm { text-align: right; }
+        .shm-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.4px; color: rgba(255,255,255,0.6); }
+        .shm-val { font-size: 14px; font-weight: 700; }
+
+        /* ── STATUS TAGS ───────────────────────────────── */
+        .tag-enrolled { font-size: 10px; font-weight: 600; color: #14532d; background: #f0fdf4; border: 1px solid #86efac; padding: 1px 6px; }
+        .tag-ip       { font-size: 10px; color: var(--muted); background: #f5f5f5; border: 1px solid #d0d0d0; padding: 1px 6px; font-style: italic; }
+
+        /* ── GPA BAR CHART ─────────────────────────────── */
+        .gbar-wrap { padding: 12px 14px; }
+        .gbar-row  { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+        .gbar-lbl  { width: 88px; font-size: 11px; color: var(--muted); text-align: right; flex-shrink: 0; }
+        .gbar-track { flex: 1; height: 16px; background: #e8e8e8; border: 1px solid #cccccc; }
+        .gbar-fill  { height: 100%; background: var(--navy); display: flex; align-items: center; padding-left: 5px; font-size: 10px; font-weight: 700; color: var(--white); }
+        .gbar-val   { width: 34px; font-size: 12px; font-weight: 700; text-align: right; color: var(--text); flex-shrink: 0; }
+        .gbar-fill.cum { background: #2e6b4a; }
+
+        /* ── TWO COL ───────────────────────────────────── */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+
+        /* ── TOTAL ROW ─────────────────────────────────── */
+        .total-row {
+            background: #e8edf5; border: 1px solid var(--border);
+            display: flex; justify-content: flex-end;
+            margin-bottom: 14px;
+        }
+        .tr-cell { padding: 10px 16px; border-left: 1px solid var(--border); text-align: center; }
+        .tr-lbl { font-size: 9.5px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.4px; }
+        .tr-val { font-size: 16px; font-weight: 700; color: var(--navy); margin-top: 2px; }
+
+        /* ── PRINT BUTTON ──────────────────────────────── */
+        .btn {
+            background: var(--white); color: var(--navy);
+            border: 1px solid var(--border); padding: 5px 13px; font-size: 12px;
+            cursor: pointer; font-weight: 600;
+        }
+        .btn:hover { background: #f0f0f0; }
+
+        @media print {
+            .sidebar, .topbar, .btn { display: none !important; }
+            .main { margin: 0; padding: 10px; }
+            .section { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<header class="topbar">
+    <div class="tb-left">
+        <img class="tb-logo" src="14.North-South-University-NSU.psd.png" alt="NSU Seal">
+        <div>
+            <div class="tb-title">North South University</div>
+            <div class="tb-sub">Student Information System (SIS)</div>
+        </div>
+    </div>
+    <div class="tb-right">
+        <span class="tb-semester">Current Semester: Summer 2026</span>
+        <span class="tb-user">Tanjim Shahriar Fahim &nbsp;|&nbsp; 2414101630</span>
+        <a class="tb-logout" href="index.html">Log Out</a>
+    </div>
+</header>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+    <div class="sb-seal">
+        <img src="14.North-South-University-NSU.psd.png" alt="NSU Seal">
+    </div>
+    <div class="sb-id-block">
+        <div class="sb-name">Tanjim Shahriar Fahim</div>
+        <div class="sb-id">ID: 2414101630</div>
+        <div class="sb-prog">BBA — Marketing &nbsp;|&nbsp; SoBE</div>
+        <span class="sb-standing">Good Standing</span>
+    </div>
+    <nav class="sb-nav">
+        <div class="sb-group-label">Student Menu</div>
+        <div class="nav-item active" onclick="show('dashboard',this)">Dashboard</div>
+        <div class="nav-item" onclick="show('transcript',this)">Academic Transcript</div>
+        <div class="nav-item" onclick="show('enrollment',this)">Current Enrollment</div>
+        <div class="nav-item" onclick="show('gpa',this)">GPA Report</div>
+        <hr class="sb-hr">
+        <div class="sb-group-label">Account</div>
+        <div class="nav-item" onclick="show('profile',this)">Student Profile</div>
+    </nav>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+<!-- ══════════════════ DASHBOARD ══════════════════ -->
+<section id="dashboard" class="section active">
+    <div class="pg-head">
+        <div>
+            <div class="pg-title">Student Dashboard</div>
+            <div class="pg-sub">Summer 2026 &nbsp;|&nbsp; School of Business &amp; Economics, North South University</div>
+        </div>
+    </div>
+
+    <div class="stu-strip">
+        <div class="stu-cell">
+            <div class="stu-lbl">Student Name</div>
+            <div class="stu-val">Tanjim Shahriar Fahim</div>
+        </div>
+        <div class="stu-cell">
+            <div class="stu-lbl">Student ID</div>
+            <div class="stu-val">2414101630</div>
+        </div>
+        <div class="stu-cell">
+            <div class="stu-lbl">Program / Major</div>
+            <div class="stu-val">BBA — Marketing</div>
+        </div>
+        <div class="stu-cell">
+            <div class="stu-lbl">Current Semester</div>
+            <div class="stu-val">Summer 2026</div>
+        </div>
+        <div class="stu-cell">
+            <div class="stu-lbl">Cumulative GPA</div>
+            <div class="stu-val big">3.16</div>
+        </div>
+    </div>
+
+    <div class="stat-row">
+        <div class="sbox">
+            <div class="sbox-lbl">Cumulative GPA</div>
+            <div class="sbox-val">3.16</div>
+            <div class="sbox-sub">Out of 4.00 &nbsp;·&nbsp; Good Standing</div>
+        </div>
+        <div class="sbox">
+            <div class="sbox-lbl">Credits Completed</div>
+            <div class="sbox-val">69</div>
+            <div class="sbox-sub">Of 120 required for degree</div>
+        </div>
+        <div class="sbox">
+            <div class="sbox-lbl">Degree Progress</div>
+            <div class="sbox-val">57.5%</div>
+            <div class="prog-wrap">
+                <div class="prog-track"><div class="prog-fill" style="width:57.5%"></div></div>
+            </div>
+        </div>
+        <div class="sbox">
+            <div class="sbox-lbl">Semesters Completed</div>
+            <div class="sbox-val">5</div>
+            <div class="sbox-sub">+1 currently in progress</div>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <div class="panel">
+            <div class="panel-head"><span class="panel-title">Student Information</span></div>
+            <table class="kvt">
+                <tr><th>Full Name</th><td>Tanjim Shahriar Fahim</td></tr>
+                <tr><th>Student ID</th><td>2414101630</td></tr>
+                <tr><th>Gender</th><td>Male</td></tr>
+                <tr><th>Program</th><td>Bachelor of Business Administration (BBA)</td></tr>
+                <tr><th>Major / Concentration</th><td>Marketing</td></tr>
+                <tr><th>School / Dept.</th><td>School of Business &amp; Economics</td></tr>
+                <tr><th>Academic Year</th><td>3rd Year</td></tr>
+                <tr><th>Academic Advisor</th><td>Dr. M. R. Hossain</td></tr>
+                <tr><th>Admission Semester</th><td>Spring 2024</td></tr>
+                <tr><th>Expected Graduation</th><td>Spring 2028</td></tr>
+                <tr><th>Academic Standing</th><td><strong style="color:#14532d;">Good Standing</strong></td></tr>
+            </table>
+        </div>
+
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title">Current Enrollment — Summer 2026</span>
+                <span class="panel-note">15 Credits Registered</span>
+            </div>
+            <table class="dt">
+                <thead>
+                    <tr><th>Code</th><th>Course Title</th><th class="c">Cr</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="ccode">BUS 172</td><td>Introduction to Statistics</td><td class="c">3</td><td><span class="tag-ip">In Progress</span></td></tr>
+                    <tr><td class="ccode">LAW 200</td><td>Legal Environment of Business</td><td class="c">3</td><td><span class="tag-ip">In Progress</span></td></tr>
+                    <tr><td class="ccode">POL 101</td><td>Political Science</td><td class="c">3</td><td><span class="tag-ip">In Progress</span></td></tr>
+                    <tr><td class="ccode">FIN 480</td><td>Advanced Corporate Finance</td><td class="c">3</td><td><span class="tag-ip">In Progress</span></td></tr>
+                    <tr><td class="ccode">MKT 400</td><td>Digital Marketing</td><td class="c">3</td><td><span class="tag-ip">In Progress</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════ TRANSCRIPT ══════════════════ -->
+<section id="transcript" class="section">
+    <div class="pg-head">
+        <div>
+            <div class="pg-title">Unofficial Academic Transcript</div>
+            <div class="pg-sub">Tanjim Shahriar Fahim &nbsp;·&nbsp; ID: 2414101630 &nbsp;·&nbsp; BBA — Marketing &nbsp;·&nbsp; North South University</div>
+        </div>
+        <button class="btn" onclick="window.print()">Print Transcript</button>
+    </div>
+
+    <!-- Spring 2024 -->
+    <div class="sem-block">
+        <div class="sem-hdr">
+            <span class="sem-hdr-name">Spring 2024</span>
+            <div class="sem-hdr-meta">
+                <div class="shm"><div class="shm-lbl">Credits</div><div class="shm-val">15</div></div>
+                <div class="shm"><div class="shm-lbl">Semester GPA</div><div class="shm-val">3.26</div></div>
+                <div class="shm"><div class="shm-lbl">Cumulative GPA</div><div class="shm-val">3.26</div></div>
+            </div>
+        </div>
+        <table class="dt">
+            <thead><tr><th>Code</th><th>Course Title</th><th class="c">Cr</th><th>Grade</th><th class="c">Pts</th><th class="r">Qual. Pts</th></tr></thead>
+            <tbody>
+                <tr><td class="ccode">ENG 115</td><td>English Composition</td><td class="c">3</td><td><span class="g g-mid">B+</span></td><td class="c">3.30</td><td class="r">9.90</td></tr>
+                <tr><td class="ccode">MAT 110</td><td>Business Mathematics</td><td class="c">3</td><td><span class="g g-mid">B</span></td><td class="c">3.00</td><td class="r">9.00</td></tr>
+                <tr><td class="ccode">BUS 101</td><td>Introduction to Business</td><td class="c">3</td><td><span class="g g-hi">A-</span></td><td class="c">3.70</td><td class="r">11.10</td></tr>
+                <tr><td class="ccode">ECO 101</td><td>Principles of Microeconomics</td><td class="c">3</td><td><span class="g g-mid">B</span></td><td class="c">3.00</td><td class="r">9.00</td></tr>
+                <tr><td class="ccode">MGT 201</td><td>Principles of Management</td><td class="c">3</td><td><span class="g g-mid">B+</span></td><td class="c">3.30</td><td class="r">9.90</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Fall 2024 -->
+    <div class="sem-block">
+        <div class="sem-hdr">
+            <span class="sem-hdr-name">Fall 2024</span>
+            <div class="sem-hdr-meta">
+                <div class="shm"><div class="shm-lbl">Credits</div><div class="shm-val">15</div></div>
+                <div class="shm"><div class="shm-lbl">Semester GPA</div><div class="shm-val">3.14</div></div>
+                <div class="shm"><div class="shm-lbl">Cumulative GPA</div><div class="shm-val">3.20</div></div>
+            </div>
+        </div>
+        <table class="dt">
+            <thead><tr><th>Code</th><th>Course Title</th><th class="c">Cr</th><th>Grade</th><th class="c">Pts</th><th class="r">Qual. Pts</th></tr></thead>
+            <tbody>
+                <tr><td class="ccode">ACC 201</td><td>Financial Accounting</td><td class="c">3</td><td><span class="g g-mid">B+</span></td><td class="c">3.30</td><td class="r">9.90</td></tr>
+                <tr><td class="ccode">ECO 201</td><td>Principles of Macroeconomics</td><td class="c">3</td><td><span class="g g-mid">B</span></td><td class="c">3.00</td><td class="r">9.00</td></tr>
+                <tr><td class="ccode">MKT 202</td><td>Marketing Principles</td><td class="c">3</td><td><span class="g g-hi">A-</span></td><td class="c">3.70</td><td class="r">11.10</td></tr>
+                <tr><td class="ccode">STA 201</td><td>Business Statistics</td><td class="c">3</td><td><span class="g g-lo">B-</span></td><td class="c">2.70</td><td class="r">8.10</td></tr>
+                <tr><td class="ccode">MGT 240</td><td>Organizational Behavior</td><td class="c">3</td><td><span class="g g-mid">B</span></td><td class="c">3.00</td><td class="r">9.00</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Spring 2025 — HRM 301 deferred to Fall 2026 -->
+    <div class="sem-block">
+        <div class="sem-hdr">
+            <span class="sem-hdr-name">Spring 2025</span>
+            <div class="sem-hdr-meta">
+                <div class="shm"><div class="shm-lbl">Credits</div><div class="shm-val">12</div></div>
+                <div class="shm"><div class="shm-lbl">Semester GPA</div><div class="shm-val">3.00</div></div>
+                <div class="shm"><div class="shm-lbl">Cumulative GPA</div><div class="shm-val">3.14</div></div>
+            </div>
+        </div>
+        <table class="dt">
+            <thead><tr><th>Code</th><th>Course Title</th><th class="c">Cr</th><th>Grade</th><th class="c">Pts</th><th class="r">Qual. Pts</th></tr></thead>
+            <tbody>
+                <tr><td class="ccode">ACC 202</td><td>Managerial Accounting</td><td class="c">3</td><td><span class="g g-mid">B</span></td><td class="c">3.00</td><td class="r">9.00</td></tr>
+                <tr><td class="ccode">FIN 301</td><td>Corporate Finance</td><td class="c">3</td><td><span class="g g-mid">B+</span></td><td class="c">3.30</td><td class="r">9.90</td></tr>
+                <tr><td class="ccode">LAW 201</td><td>Business Law</td><td class="c">3</td><td><span class="g g-lo">B-</span></td><td class="c">2.70</td><td class="r">8.10</td></tr>
+                <tr><td class="ccode">MGT 302</td><td>Operations Management</td><td class="c">3</td><td><span class="g g-mid">B</span></td><td class="c">3.00</td><td class="r">9.00</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Fall 2025 -->
+    <div class="sem-block">
+        <div class="sem-hdr">
+            <span class="sem-hdr-name">Fall 2025</span>
+            <div class="sem-hdr-meta">
+                <div class="shm"><div class="shm-lbl">Credits</div><div class="shm-val">15</div></div>
+                <div class="shm"><div class="shm-lbl">Semester GPA</div><div class="shm-val">3.26</div></div>
+                <div class="shm"><div class="shm-lbl">Cumulative GPA</div><div class="shm-val">3.17</div></div>
+            </div>
+        </div>
+        <table class="dt">
+            <thead><tr><th>Code</th><th>Course Title</th><th class="c">Cr</th><th>Grade</th><th class="c">Pts</th><th class="r">Qual. Pts</th></tr></thead>
+            <tbody>
+                <tr><td class="ccode">FIN 402</td><td>Investment Analysis</td><td class="c">3</td><td><span class="g g-mid">B</span></td><td class="c">3.00</td><td class="r">9.00</td></tr>
+                <tr><td class="ccode">MKT 301</td><td>Consumer Behavior</td><td class="c">3</td><td><span class="g g-mid">B+</span></td><td class="c">3.30</td><td class="r">9.90</td></tr>
+                <tr><td class="ccode">INT 301</td><td>International Business</td><td class="c">3</td><td><span class="g g-hi">A-</span></td><td class="c">3.70</td><td class="r">11.10</td></tr>
+                <tr><td class="ccode">ETH 301</td><td>Business Ethics</td><td class="c">3</td><td><span class="g g-mid">B</span></td><td class="c">3.00</td><td class="r">9.00</td></tr>
+                <tr><td class="ccode">MGT 350</td><td>Supply Chain Management</td><td class="c">3</td><td><span class="g g-mid">B+</span></td><td class="c">3.30</td><td class="r">9.90</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Spring 2026 — ECN 222 deferred to Fall 2026 -->
+    <div class="sem-block">
+        <div class="sem-hdr">
+            <span class="sem-hdr-name">Spring 2026</span>
+            <div class="sem-hdr-meta">
+                <div class="shm"><div class="shm-lbl">Credits</div><div class="shm-val">12</div></div>
+                <div class="shm"><div class="shm-lbl">Semester GPA</div><div class="shm-val">3.10</div></div>
+                <div class="shm"><div class="shm-lbl">Cumulative GPA</div><div class="shm-val">3.16</div></div>
+            </div>
+        </div>
+        <table class="dt">
+            <thead><tr><th>Code</th><th>Course Title</th><th class="c">Cr</th><th>Grade</th><th class="c">Pts</th><th class="r">Qual. Pts</th></tr></thead>
+            <tbody>
+                <tr><td class="ccode">ACT 202</td><td>Introduction to Managerial Accounting</td><td class="c">3</td><td><span class="g g-mid">B</span></td><td class="c">3.00</td><td class="r">9.00</td></tr>
+                <tr><td class="ccode">MIS 107</td><td>Information Systems &amp; Technology</td><td class="c">3</td><td><span class="g g-mid">B</span></td><td class="c">3.00</td><td class="r">9.00</td></tr>
+                <tr><td class="ccode">MKT 337</td><td>Promotional Management</td><td class="c">3</td><td><span class="g g-hi">A-</span></td><td class="c">3.70</td><td class="r">11.10</td></tr>
+                <tr><td class="ccode">POL 212</td><td>General Intro. to International Relations</td><td class="c">3</td><td><span class="g g-lo">B-</span></td><td class="c">2.70</td><td class="r">8.10</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Summer 2026 — in progress -->
+    <div class="sem-block">
+        <div class="sem-hdr ongoing">
+            <span class="sem-hdr-name">Summer 2026 &nbsp;&nbsp;<span style="font-size:11px;font-weight:400;opacity:0.8;">(In Progress)</span></span>
+            <div class="sem-hdr-meta">
+                <div class="shm"><div class="shm-lbl">Enrolled Credits</div><div class="shm-val">15</div></div>
+                <div class="shm"><div class="shm-lbl">Semester GPA</div><div class="shm-val" style="opacity:.45;">—</div></div>
+                <div class="shm"><div class="shm-lbl">Cumulative GPA</div><div class="shm-val">3.16</div></div>
+            </div>
+        </div>
+        <table class="dt">
+            <thead><tr><th>Code</th><th>Course Title</th><th class="c">Cr</th><th>Grade</th><th class="c">Pts</th><th class="r">Qual. Pts</th></tr></thead>
+            <tbody>
+                <tr><td class="ccode">BUS 172</td><td>Introduction to Statistics</td><td class="c">3</td><td><span class="g-ip">In Progress</span></td><td class="c" style="color:var(--muted)">—</td><td class="r" style="color:var(--muted)">—</td></tr>
+                <tr><td class="ccode">LAW 200</td><td>Legal Environment of Business</td><td class="c">3</td><td><span class="g-ip">In Progress</span></td><td class="c" style="color:var(--muted)">—</td><td class="r" style="color:var(--muted)">—</td></tr>
+                <tr><td class="ccode">POL 101</td><td>Political Science</td><td class="c">3</td><td><span class="g-ip">In Progress</span></td><td class="c" style="color:var(--muted)">—</td><td class="r" style="color:var(--muted)">—</td></tr>
+                <tr><td class="ccode">FIN 480</td><td>Advanced Corporate Finance</td><td class="c">3</td><td><span class="g-ip">In Progress</span></td><td class="c" style="color:var(--muted)">—</td><td class="r" style="color:var(--muted)">—</td></tr>
+                <tr><td class="ccode">MKT 400</td><td>Digital Marketing</td><td class="c">3</td><td><span class="g-ip">In Progress</span></td><td class="c" style="color:var(--muted)">—</td><td class="r" style="color:var(--muted)">—</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="total-row">
+        <div class="tr-cell"><div class="tr-lbl">Total Credits Completed</div><div class="tr-val">69</div></div>
+        <div class="tr-cell"><div class="tr-lbl">Total Quality Points</div><div class="tr-val">218.10</div></div>
+        <div class="tr-cell"><div class="tr-lbl">Cumulative GPA</div><div class="tr-val" style="font-size:20px; color:var(--navy);">3.16</div></div>
+    </div>
+</section>
+
+<!-- ══════════════════ ENROLLMENT ══════════════════ -->
+<section id="enrollment" class="section">
+    <div class="pg-head">
+        <div>
+            <div class="pg-title">Current Enrollment</div>
+            <div class="pg-sub">Summer 2026 &nbsp;|&nbsp; Semester in Progress</div>
+        </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:14px;">
+        <div class="panel-head">
+            <span class="panel-title">Registered Courses — Summer 2026</span>
+            <span class="panel-note">15 Credits &nbsp;|&nbsp; Status: <strong style="color:#14532d;">Active</strong></span>
+        </div>
+        <table class="dt">
+            <thead>
+                <tr><th>#</th><th>Course Code</th><th>Course Title</th><th class="c">Credits</th><th>Day &amp; Time</th><th>Room</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="color:var(--muted)">1</td>
+                    <td class="ccode">BUS 172</td><td>Introduction to Statistics</td>
+                    <td class="c">3</td><td>Sun / Tue &nbsp; 08:00 – 09:30</td><td>NAC-405</td>
+                    <td><span class="tag-enrolled">Enrolled</span></td>
+                </tr>
+                <tr>
+                    <td style="color:var(--muted)">2</td>
+                    <td class="ccode">LAW 200</td><td>Legal Environment of Business</td>
+                    <td class="c">3</td><td>Mon / Wed &nbsp; 09:40 – 11:10</td><td>SAC-210</td>
+                    <td><span class="tag-enrolled">Enrolled</span></td>
+                </tr>
+                <tr>
+                    <td style="color:var(--muted)">3</td>
+                    <td class="ccode">POL 101</td><td>Political Science</td>
+                    <td class="c">3</td><td>Sun / Tue &nbsp; 11:20 – 12:50</td><td>NAC-512</td>
+                    <td><span class="tag-enrolled">Enrolled</span></td>
+                </tr>
+                <tr>
+                    <td style="color:var(--muted)">4</td>
+                    <td class="ccode">FIN 480</td><td>Advanced Corporate Finance</td>
+                    <td class="c">3</td><td>Mon / Wed &nbsp; 13:00 – 14:30</td><td>SAC-308</td>
+                    <td><span class="tag-enrolled">Enrolled</span></td>
+                </tr>
+                <tr>
+                    <td style="color:var(--muted)">5</td>
+                    <td class="ccode">MKT 400</td><td>Digital Marketing</td>
+                    <td class="c">3</td><td>Sun / Tue &nbsp; 14:40 – 16:10</td><td>SAC-415</td>
+                    <td><span class="tag-enrolled">Enrolled</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="two-col">
+        <div class="panel">
+            <div class="panel-head"><span class="panel-title">Semester Summary</span></div>
+            <table class="kvt">
+                <tr><th>Semester</th><td>Summer 2026</td></tr>
+                <tr><th>Enrolled Credits</th><td>15</td></tr>
+                <tr><th>Number of Courses</th><td>5</td></tr>
+                <tr><th>Enrollment Status</th><td><strong style="color:#14532d;">Active</strong></td></tr>
+            </table>
+        </div>
+        <div class="panel">
+            <div class="panel-head"><span class="panel-title">Degree Progress</span></div>
+            <table class="kvt">
+                <tr><th>Credits Completed</th><td>69 of 120</td></tr>
+                <tr><th>Credits Remaining</th><td>51 (excl. current semester)</td></tr>
+                <tr><th>Cumulative GPA</th><td><strong style="font-size:16px; color:var(--navy);">3.16</strong> / 4.00</td></tr>
+                <tr><th>Completion</th>
+                    <td>
+                        57.5%
+                        <div class="prog-wrap" style="margin-top:4px;">
+                            <div class="prog-track"><div class="prog-fill" style="width:57.5%"></div></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════ GPA REPORT ══════════════════ -->
+<section id="gpa" class="section">
+    <div class="pg-head">
+        <div>
+            <div class="pg-title">GPA Report</div>
+            <div class="pg-sub">Semester-wise performance and cumulative GPA trend</div>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <div class="panel">
+            <div class="panel-head"><span class="panel-title">Semester GPA</span><span class="panel-note">Scale: 4.00</span></div>
+            <div class="gbar-wrap">
+                <div class="gbar-row"><span class="gbar-lbl">Spring 2024</span><div class="gbar-track"><div class="gbar-fill" style="width:81.5%">3.26</div></div><span class="gbar-val">3.26</span></div>
+                <div class="gbar-row"><span class="gbar-lbl">Fall 2024</span><div class="gbar-track"><div class="gbar-fill" style="width:78.5%">3.14</div></div><span class="gbar-val">3.14</span></div>
+                <div class="gbar-row"><span class="gbar-lbl">Spring 2025</span><div class="gbar-track"><div class="gbar-fill" style="width:75.0%">3.00</div></div><span class="gbar-val">3.00</span></div>
+                <div class="gbar-row"><span class="gbar-lbl">Fall 2025</span><div class="gbar-track"><div class="gbar-fill" style="width:81.5%">3.26</div></div><span class="gbar-val">3.26</span></div>
+                <div class="gbar-row"><span class="gbar-lbl">Spring 2026</span><div class="gbar-track"><div class="gbar-fill" style="width:77.5%">3.10</div></div><span class="gbar-val">3.10</span></div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-head"><span class="panel-title">Cumulative GPA Trend</span><span class="panel-note">After each semester</span></div>
+            <div class="gbar-wrap">
+                <div class="gbar-row"><span class="gbar-lbl">After Sp 2024</span><div class="gbar-track"><div class="gbar-fill cum" style="width:81.5%">3.26</div></div><span class="gbar-val">3.26</span></div>
+                <div class="gbar-row"><span class="gbar-lbl">After Fa 2024</span><div class="gbar-track"><div class="gbar-fill cum" style="width:80.0%">3.20</div></div><span class="gbar-val">3.20</span></div>
+                <div class="gbar-row"><span class="gbar-lbl">After Sp 2025</span><div class="gbar-track"><div class="gbar-fill cum" style="width:78.5%">3.14</div></div><span class="gbar-val">3.14</span></div>
+                <div class="gbar-row"><span class="gbar-lbl">After Fa 2025</span><div class="gbar-track"><div class="gbar-fill cum" style="width:79.25%">3.17</div></div><span class="gbar-val">3.17</span></div>
+                <div class="gbar-row"><span class="gbar-lbl">After Sp 2026</span><div class="gbar-track"><div class="gbar-fill cum" style="width:79.0%">3.16</div></div><span class="gbar-val">3.16</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:14px;">
+        <div class="panel-head"><span class="panel-title">GPA Summary by Semester</span></div>
+        <table class="dt">
+            <thead>
+                <tr>
+                    <th>Semester</th>
+                    <th class="c">Credits</th>
+                    <th class="c">Quality Pts</th>
+                    <th class="c">Sem. GPA</th>
+                    <th class="c">Cum. Credits</th>
+                    <th class="c">Cum. Qual. Pts</th>
+                    <th class="c">Cum. GPA</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Spring 2024</td><td class="c">15</td><td class="c">48.90</td><td class="c"><strong>3.26</strong></td><td class="c">15</td><td class="c">48.90</td><td class="c"><strong>3.26</strong></td></tr>
+                <tr><td>Fall 2024</td><td class="c">15</td><td class="c">47.10</td><td class="c"><strong>3.14</strong></td><td class="c">30</td><td class="c">96.00</td><td class="c"><strong>3.20</strong></td></tr>
+                <tr><td>Spring 2025</td><td class="c">12</td><td class="c">36.00</td><td class="c"><strong>3.00</strong></td><td class="c">42</td><td class="c">132.00</td><td class="c"><strong>3.14</strong></td></tr>
+                <tr><td>Fall 2025</td><td class="c">15</td><td class="c">48.90</td><td class="c"><strong>3.26</strong></td><td class="c">57</td><td class="c">180.90</td><td class="c"><strong>3.17</strong></td></tr>
+                <tr><td>Spring 2026</td><td class="c">12</td><td class="c">37.20</td><td class="c"><strong>3.10</strong></td><td class="c">69</td><td class="c">218.10</td><td class="c"><strong>3.16</strong></td></tr>
+                <tr><td><em style="color:var(--muted)">Summer 2026 (in progress)</em></td><td class="c" style="color:var(--muted)">15*</td><td class="c" style="color:var(--muted)">—</td><td class="c" style="color:var(--muted)">—</td><td class="c" style="color:var(--muted)">—</td><td class="c" style="color:var(--muted)">—</td><td class="c" style="color:var(--muted)">—</td></tr>
+                <tr style="background:#e8edf5; font-weight:700;">
+                    <td>TOTAL (completed semesters)</td>
+                    <td class="c">69</td><td class="c">218.10</td><td class="c">—</td>
+                    <td class="c">69</td><td class="c">218.10</td>
+                    <td class="c" style="color:var(--navy); font-size:14px;">3.16</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel">
+        <div class="panel-head"><span class="panel-title">Grade Distribution</span><span class="panel-note">23 courses completed</span></div>
+        <table class="dt">
+            <thead><tr><th>Grade</th><th class="c">Courses</th><th class="c">Percentage</th><th>Grade Point Value</th></tr></thead>
+            <tbody>
+                <tr><td><span class="g g-hi">A-</span></td><td class="c">4</td><td class="c">17.4%</td><td>3.70</td></tr>
+                <tr><td><span class="g g-mid">B+</span></td><td class="c">6</td><td class="c">26.1%</td><td>3.30</td></tr>
+                <tr><td><span class="g g-mid">B</span></td><td class="c">10</td><td class="c">43.5%</td><td>3.00</td></tr>
+                <tr><td><span class="g g-lo">B-</span></td><td class="c">3</td><td class="c">13.0%</td><td>2.70</td></tr>
+                <tr style="background:#f5f5f5; font-weight:600;"><td>Total</td><td class="c">23</td><td class="c">100%</td><td>—</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ══════════════════ PROFILE ══════════════════ -->
+<section id="profile" class="section">
+    <div class="pg-head">
+        <div>
+            <div class="pg-title">Student Profile</div>
+            <div class="pg-sub">Personal and academic information on record</div>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <div class="panel">
+            <div class="panel-head"><span class="panel-title">Personal Information</span></div>
+            <table class="kvt">
+                <tr><th>Full Name</th><td>Tanjim Shahriar Fahim</td></tr>
+                <tr><th>Gender</th><td>Male</td></tr>
+                <tr><th>Student ID</th><td>2414101630</td></tr>
+                <tr><th>University Email</th><td>tsfahim@northsouth.edu</td></tr>
+                <tr><th>Contact Number</th><td>+880 1700-000000</td></tr>
+                <tr><th>Campus</th><td>Bashundhara, Dhaka</td></tr>
+            </table>
+        </div>
+        <div class="panel">
+            <div class="panel-head"><span class="panel-title">Academic Information</span></div>
+            <table class="kvt">
+                <tr><th>Program</th><td>Bachelor of Business Administration (BBA)</td></tr>
+                <tr><th>Major / Concentration</th><td>Marketing</td></tr>
+                <tr><th>School / Department</th><td>School of Business &amp; Economics</td></tr>
+                <tr><th>Academic Year</th><td>3rd Year</td></tr>
+                <tr><th>Academic Advisor</th><td>Dr. M. R. Hossain</td></tr>
+                <tr><th>Admission Semester</th><td>Spring 2024</td></tr>
+                <tr><th>Expected Graduation</th><td>Spring 2028</td></tr>
+                <tr><th>Total Credits Required</th><td>120</td></tr>
+                <tr><th>Credits Completed</th><td>69</td></tr>
+                <tr><th>Cumulative GPA</th><td><strong style="color:var(--navy);">3.16</strong> / 4.00</td></tr>
+                <tr><th>Academic Standing</th><td><strong style="color:#14532d;">Good Standing</strong></td></tr>
+            </table>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<script>
+    function show(id, el) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        el.classList.add('active');
+    }
+</script>
+</body>
+</html>
